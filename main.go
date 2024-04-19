@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"os"
-	"strconv"
 	"time"
 
 	"github.com/gen2brain/beeep"
@@ -11,29 +10,26 @@ import (
 
 func main() {
 	args := os.Args
-	timer, err := strconv.ParseInt(args[1], 10, 64)
 	
-	var unit time.Duration 
+	if len(args) == 1 {
+		printUsage()
+		os.Exit(0)
+		return
+	}
 
+	if args[1] == "-h" || args[1] == "-help" {
+		printUsage()
+		os.Exit(0)
+		return
+	}
+	remainingTime, err := time.ParseDuration(args[1])
 	if err != nil {
-		fmt.Println("Invalid integer entered. Please run a valid integer.")
+		fmt.Println("Invalid Duration format. Please run again with a valid Duration.")
+		os.Exit(1)
 		return
 	}
 
-	switch input := args[2]; input {
-	case "s":
-		unit = time.Second
-	case "m":
-		unit = time.Minute
-	case "h":
-		unit = time.Hour
-	default:
-		fmt.Println("Invalid unit. Accepted units: s(econd), m(inute), h(our)")
-		return
-	}
 
-	remainingTime :=  time.Duration(timer) * unit
-	
 	for remainingTime > 0 {
 		clearLine()
 		fmt.Print(remainingTime.String())
@@ -45,9 +41,15 @@ func main() {
 	clearLine()
 	beeep.Alert("Hey","Timer is over", "")
 	fmt.Println("Done!")
+	os.Exit(0)
 }
 
 func clearLine(){
 	fmt.Print("\033[2K")
 	fmt.Print("\r")
+}
+
+func printUsage(){
+	fmt.Print("Timer\n",
+	"Usage: timer [**h][**m][**s]\n")
 }
